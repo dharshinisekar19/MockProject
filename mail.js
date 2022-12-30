@@ -4,7 +4,7 @@ var sender = nodemailer.createTransport({
     service: "outlook",
     auth: {
         user: "dharshini.s@datayaan.com",
-        pass: "SGSDK@2022"
+        pass: ""
     }
 });
 var composemail = {
