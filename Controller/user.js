@@ -1,8 +1,11 @@
 const mongoose = require("mongoose")
+var nodemailer = require("nodemailer");
 const userModel = require("../Models/userModel")
 const HashGenerate = require("../Middleware/hashing")
 const validator = require("../Middleware/validation")
 const tokenGenerator = require("../Middleware/token")
+const upload = require("../Middleware/uploads")
+const sender =  require("../Middleware/mail")
 async function Signup(req, res) {
     //password hashing
     req.body.password = await HashGenerate.HashGenerate(req.body.password)
@@ -26,7 +29,34 @@ async function Signup(req, res) {
             res.status(400).json({ message: "Email already exit, please give new email id" })
         } else {
             try {
-                const savedUser = await user.save() // save and response the user
+                // sending mail 
+                var sender = nodemailer.createTransport({
+                    service: "outlook",
+                    auth: {
+                        user: "dharshini.s@datayaan.com",
+                        pass: "Medyaan@2023"
+                    }
+                });
+                var composemail = {
+                    from: "dharshini.s@datayaan.com",
+                    to: req.body.email,
+                    subject: "send mail",
+                    text: `hi, this is dharshini`
+                };
+                sender.sendMail(composemail, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                
+                    } else {
+                        console.log("mail send successfully" + info.response);
+                    }
+                })
+                // file upload images
+                if(req.file){
+                    user.profileImage = req.file.path
+                }
+                // save response
+                const savedUser = await user.save()
                 res.status(200).json({ message: "signup successfully", data: savedUser });
             } catch (err) {
                 res.status(400).json({ message: err })

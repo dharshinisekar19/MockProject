@@ -17,15 +17,6 @@ mongoose.connect(url, { useNewUrlParser: true }).then(() => {
         console.log("database connection failed..");
     })
 
-// file uploading
-const multer = require("multer")
-const upload = multer({
-    dest : "images"
-})
-app.post("/upload",upload.single("upload"), (req,res) => {
-
-})
-
 
 app.use(express.json())
 app.use(helmet())

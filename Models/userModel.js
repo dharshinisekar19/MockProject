@@ -4,7 +4,7 @@ const userSchema = mongoose.Schema
 const userModel = userSchema({
     username: { type: String,default: "" },
     email: { type: String, required: true },
-    profileImage: { type: String, default: "" },
+    profileImage: { type: String, required:true },
     followers: { type: Array, default: [] },
     followings: { type: Array, default: [] },
     account: { type: Boolean, default: true },

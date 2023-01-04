@@ -1,5 +1,6 @@
 const post = require("../Models/postModel")
 const mongoose = require("mongoose");
+const e = require("express");
 
 async function PostStory(req, res) {
     try {
@@ -35,63 +36,77 @@ async function DeletePost(req, res) {
 async function likePost(req, res) {
     try {
         const Post = await post.findById(req.params.id)
-        if(!Post.likes.includes(req.body.userId)){
-            await Post.updateOne({$push: {likes :req.body.userId}})
+        if (!Post.likes.includes(req.body.userId)) {
+            await Post.updateOne({ $push: { likes: req.body.userId } })
             res.status(200).json({ message: "liked Successfully" })
-        }else{
-           await Post.updateOne({$pull: {likes : req.body.userId}})
-           res.status(400).json({ message : "The post has been disliked"}) 
+        } else {
+            await Post.updateOne({ $pull: { likes: req.body.userId } })
+            res.status(400).json({ message: "The post has been disliked" })
         }
     } catch (err) {
-        console.log("err",err);
+        console.log("err", err);
         res.status(400).json({ message: err })
         return
     }
 }
 //commentpost
-async function CommentPost (req,res){
-    try{
+async function CommentPost(req, res) {
+    try {
+        console.log("comme",req.params.id);
         const comment = await post.findById(req.params.id)
-       await comment.updateOne({$push : {commentsPost :req.body.commentsPost}})
-        res.status(200).json({message : "comment successfully"})
-        
-    }catch(err){
-        console.log("err",err);
+        console.log("comme",comment);
+        await comment.updateOne({ $push: { commentsPost: req.body.commentsPost}})
+        res.status(200).json({ message: "comment successfully" })
+
+    } catch (err) {
+        console.log("err", err);
         res.status(400).json({ message: err })
         return
     }
 }
 //getpost
-async function GetPost(req,res){
-    try{
+async function GetPost(req, res) {
+    try {
         const Post = await post.findById(req.params.id)
         res.status(200).json({ data: Post })
-        
-    }catch(err){
-        console.log("err",err);
+
+    } catch (err) {
+        console.log("err", err);
         res.status(400).json({ message: err })
         return
     }
 }
 //deletecomment
-async function DeleteComment(req,res){
-    try{
-        const data = await post.findByIdAndUpdate(req.params.id,{$pull : {commentsPost:req.params.commentId}});
-        console.log("re",req.params.id);
-        console.log("com",req.params.commentId);
-        console.log("king",req.params);
-        if(!data){
-            res.status(400).json({ message: "post not found" })
+async function DeleteComment(req, res) {
+    try {
+        console.log("dld",req.params.id);
+        const deleteComment = await post.findById(req.params.id);
+        console.log(deleteComment);
+        if (!deleteComment) {
+            res.status(200).json({ message: 'invalid userId' })
+            return
         }
-        // await post.commentModel.findByIdAndDelete(req.params.commentId)
-        // res.status(200).json({ message: "comment deleted" })  
-        
-    }catch(err){
-        console.log("err",err);
-        res.status(400).json({ message: err })
-        return
+       for (const comment of deleteComment.commentsPost) {
+            console.log("comment",comment);
+            if (comment._id == req.body.comment_post_id) {
+                console.log("comid",comment._id);
+                console.log("req", req.body.comment_post_id);
+                
+                try {
+                    await deleteComment.updateOne({ $pull: { commentsPost: comment } });
+                    res.status(200).json({ message: 'Comment Deleted Successfully' })
+                    return
+                } catch (error) {
+                    //res.status(400).json({ message: error })
+                }
+            }
+          
+        }
+    }catch (error) {
+        console.log("err",error)
+        res.status(400).json({ message: error })
     }
 }
 module.exports = {
-    PostStory,UpdatePost,DeletePost,likePost,CommentPost,GetPost,DeleteComment
+    PostStory, UpdatePost, DeletePost, likePost, CommentPost, GetPost, DeleteComment
 }
