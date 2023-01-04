@@ -34,7 +34,7 @@ async function Signup(req, res) {
                     service: "outlook",
                     auth: {
                         user: "dharshini.s@datayaan.com",
-                        pass: "Medyaan@2023"
+                        pass: ""
                     }
                 });
                 var composemail = {
